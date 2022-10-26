@@ -1,13 +1,16 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../contexts/AuthProvider/AuthProvider';
 import './Login.css';
 
 const Login = () => {
-
+  const [error, setError] = useState('') 
     const {signIn} = useContext(AuthContext);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || '/';
 
     const handleSubmit = event =>{
         event.preventDefault();
@@ -19,9 +22,13 @@ const Login = () => {
             const user = result.user;
             console.log(user);
             form.reset();
-            navigate('/')
+            setError('');
+            navigate(from, {replace : true});
         })
-        .catch(error => console.error(error))
+        .catch(error => {
+          console.error(error);
+          setError(error.message);
+        })
     }
 
     return (
@@ -37,7 +44,9 @@ const Login = () => {
       </Form.Group>
       <Form.Group className="mb-3" controlId="formBasicCheckbox">
         <Form.Text className="text-danger">
+          {error}
         </Form.Text>
+        <br />
         <small>New Here? <Link className='ancor' to='/register'>Register</Link></small>
       </Form.Group>
       <Button className='mb-2' variant="primary" type="submit">
